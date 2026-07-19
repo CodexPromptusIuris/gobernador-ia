@@ -1,0 +1,124 @@
+🔐 QUICK DATABASE ACCESS CARD
+═════════════════════════════════════════════════════════════════
+
+📌 CREDENTIALS
+──────────────────────────────────────────────────────────────────
+Host:        localhost
+Port:        5432
+Database:    gobernador_ia
+Username:    postgres
+Password:    gobernador-secure-password-2024
+
+🎯 QUICK COMMANDS
+──────────────────────────────────────────────────────────────────
+
+Connect to Database:
+  docker exec gobernador-db psql -U postgres -d gobernador_ia
+
+View Tables:
+  docker exec gobernador-db psql -U postgres -d gobernador_ia -c "\dt"
+
+View Audit Logs:
+  docker exec gobernador-db psql -U postgres -d gobernador_ia \
+    -c "SELECT * FROM audit_logs;"
+
+View Subject Rights Requests:
+  docker exec gobernador-db psql -U postgres -d gobernador_ia \
+    -c "SELECT * FROM subject_rights_requests;"
+
+Check Data Count:
+  docker exec gobernador-db psql -U postgres -d gobernador_ia \
+    -c "SELECT COUNT(*) FROM audit_logs;"
+
+View Compliance Status:
+  docker exec gobernador-db psql -U postgres -d gobernador_ia \
+    -c "SELECT * FROM compliance_status_current;"
+
+📊 DATABASE STATUS
+──────────────────────────────────────────────────────────────────
+Tables:             12 installed ✅
+Views:              4 installed ✅
+Audit Logs:         3 sample entries
+Subject Rights:     1 sample entry
+Status:             Ready for use ✅
+
+💾 BACKUP & RESTORE
+──────────────────────────────────────────────────────────────────
+Backup:
+  docker exec gobernador-db pg_dump -U postgres gobernador_ia > backup.sql
+
+Restore:
+  docker exec -i gobernador-db psql -U postgres gobernador_ia < backup.sql
+
+🛠️  GRAPHICAL CLIENTS
+──────────────────────────────────────────────────────────────────
+DBeaver:    https://dbeaver.io
+pgAdmin:    Usually http://localhost:5050
+TablePlus:  https://tableplus.com
+Adminer:    Usually http://localhost:8080
+
+📚 COMMON QUERIES
+──────────────────────────────────────────────────────────────────
+
+List all tables:
+  SELECT * FROM information_schema.tables WHERE table_schema='public';
+
+Get table sizes:
+  SELECT tablename, pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename))
+  FROM pg_tables WHERE schemaname='public' ORDER BY pg_total_relation_size DESC;
+
+View Audit Logs (latest first):
+  SELECT user_id, action, data_type, timestamp FROM audit_logs ORDER BY timestamp DESC;
+
+Get Overdue Subject Rights Requests:
+  SELECT id, subject_id, request_type FROM subject_rights_requests 
+  WHERE status='PENDING' AND deadline < NOW();
+
+Daily Audit Summary:
+  SELECT * FROM audit_log_summary_daily;
+
+🔑 psql COMMANDS
+──────────────────────────────────────────────────────────────────
+\dt                 List all tables
+\dv                 List all views
+\du                 List users/roles
+\d table_name       Show table structure
+\l                  List all databases
+\c database_name    Connect to database
+\dp                 List permissions
+\q                  Exit psql
+
+🐍 PYTHON CONNECTION
+──────────────────────────────────────────────────────────────────
+import psycopg2
+
+conn = psycopg2.connect(
+    host="localhost",
+    port=5432,
+    database="gobernador_ia",
+    user="postgres",
+    password="gobernador-secure-password-2024"
+)
+
+cur = conn.cursor()
+cur.execute("SELECT * FROM audit_logs;")
+rows = cur.fetchall()
+cur.close()
+conn.close()
+
+📍 CONNECTION STRING
+──────────────────────────────────────────────────────────────────
+postgresql://postgres:gobernador-secure-password-2024@localhost:5432/gobernador_ia
+
+⚠️  SECURITY NOTES
+──────────────────────────────────────────────────────────────────
+✓ Keep password safe - never share
+✓ Change password before production
+✓ Never commit .env to Git
+✓ Rotate credentials quarterly
+✓ Use environment variables
+✓ Enable SSL in production
+
+═════════════════════════════════════════════════════════════════
+For full documentation, see: DATABASE_CONNECTION_GUIDE.md
+═════════════════════════════════════════════════════════════════

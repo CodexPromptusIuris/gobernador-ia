@@ -1,0 +1,61 @@
+version: '3.9'
+
+# This docker-compose file is optimized for AWS ECS deployment
+# Usage: ecs-cli compose service up -f docker-compose.aws.yml
+
+services:
+  backend:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/bro-partner-backend:latest
+    container_name: bro-partner-backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      PORT: 8080
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      WEBHOOK_API_KEY: ${WEBHOOK_API_KEY}
+      FRONTEND_URL: ${FRONTEND_URL}
+      LOG_LEVEL: warn
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: /ecs/bro-partner-backend
+        awslogs-region: ${AWS_REGION}
+        awslogs-stream-prefix: ecs
+
+  db:
+    image: postgres:15-alpine
+    container_name: bro-partner-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: bro_partner
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: /ecs/bro-partner-db
+        awslogs-region: ${AWS_REGION}
+        awslogs-stream-prefix: ecs
+
+volumes:
+  pgdata:
+    driver: local

@@ -1,0 +1,25 @@
+{
+  "name": "gobernador-mcp-server",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for Gobernador IA - connects to all LLM providers",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "axios": "^1.6.2",
+    "uuid": "^9.0.1",
+    "openai": "^4.24.0",
+    "@anthropic-ai/sdk": "^0.9.1",
+    "google-generativeai": "^0.1.3",
+    "cohere-ai": "^7.8.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

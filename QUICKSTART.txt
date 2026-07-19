@@ -1,0 +1,136 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    GOBERNADOR IA - QUICK START GUIDE                        ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+┌─ WINDOWS USERS ─────────────────────────────────────────────────────────┐
+│                                                                            │
+│  1. Double-click: gobernador.bat                                          │
+│  2. Wait 2-3 minutes (first time: downloading images)                    │
+│  3. Open browser: http://localhost:5173                                  │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ MAC/LINUX USERS ───────────────────────────────────────────────────────┐
+│                                                                            │
+│  1. Open Terminal in this folder                                          │
+│  2. Run: bash gobernador.sh                                               │
+│  3. Wait 2-3 minutes                                                      │
+│  4. Open browser: http://localhost:5173                                  │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ BEFORE FIRST RUN ──────────────────────────────────────────────────────┐
+│                                                                            │
+│  📝 EDIT .env FILE                                                        │
+│     └─ Change all passwords                                               │
+│     └─ Keep at least 12+ characters                                       │
+│     └─ Location: /.env                                                    │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                          USEFUL COMMANDS                                   ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+Windows Command Prompt:
+  gobernador.bat              Start all services
+  gobernador.bat stop         Stop all services
+  gobernador.bat restart      Restart all services
+  gobernador.bat logs         View live logs (Ctrl+C to exit)
+  gobernador.bat status       Show container status
+  gobernador.bat cleanup      Delete all data (⚠️ WARNING)
+
+macOS/Linux Terminal:
+  ./gobernador.sh             Start all services
+  ./gobernador.sh stop        Stop all services
+  ./gobernador.sh restart     Restart all services
+  ./gobernador.sh logs        View live logs (Ctrl+C to exit)
+  ./gobernador.sh status      Show container status
+  ./gobernador.sh cleanup     Delete all data (⚠️ WARNING)
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                          SERVICE ACCESS                                    ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+Frontend:    http://localhost:5173  (React UI)
+Backend:     http://localhost:8080  (API)
+Health:      http://localhost:8080/health
+Database:    localhost:5432 (PostgreSQL)
+
+Database Credentials (from .env):
+  User: postgres
+  Database: gobernador_ia
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                        TROUBLESHOOTING                                     ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+❌ Port Already in Use?
+   Windows: netstat -ano | findstr :5173
+   Mac/Linux: lsof -ti:5173 | xargs kill -9
+
+❌ Services Won't Start?
+   Check logs: gobernador logs
+   Usually takes 30 seconds for first start
+
+❌ Database Connection Failed?
+   Stop: gobernador stop
+   Wait 5 seconds
+   Start: gobernador start
+   Wait 30 seconds
+
+❌ Clear Everything?
+   gobernador cleanup
+   Then: gobernador start
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                       WHAT YOU GET                                         ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+✅ Full-Stack Application
+   └─ Frontend: React + Vite + Tailwind (Port 5173)
+   └─ Backend: Rust + Axum API (Port 8080)
+   └─ Database: PostgreSQL 15 (Port 5432)
+
+✅ Production Ready
+   └─ Security best practices
+   └─ Health checks
+   └─ Auto-restart
+   └─ Persistent storage
+   └─ Environment secrets
+
+✅ Developer Friendly
+   └─ One-click launcher
+   └─ Automatic rebuilds
+   └─ Live logs
+   └─ Easy configuration
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                         SETUP TIME                                         ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+⏱️  First Run:     2-3 minutes (downloading images)
+⏱️  Subsequent:    10-30 seconds
+⏱️  Full Ready:    ~20-30 seconds
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                      NEED MORE HELP?                                       ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+📖 Read: DEPLOYMENT_GUIDE.md (Full documentation)
+📖 Read: README.md (Comprehensive guide)
+
+For issue diagnosis:
+  1. Check logs: gobernador logs
+  2. Verify status: gobernador status
+  3. Review .env configuration
+  4. Restart services: gobernador restart
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                    🚀 READY TO DEPLOY! 🚀
+
+         Run gobernador.bat (Windows) or ./gobernador.sh (Mac/Linux)
+              Then open http://localhost:5173 in your browser
+
+═══════════════════════════════════════════════════════════════════════════════

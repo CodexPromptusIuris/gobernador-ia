@@ -1,0 +1,167 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║            GOBERNADOR IA - WINDOWS QUICK START (SIMPLE VERSION)             ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+🚀 THREE WAYS TO START
+
+┌─ METHOD 1: Simple (RECOMMENDED) ────────────────────────────────────────┐
+│  Double-click: run.bat                                                    │
+│  That's it! Just wait and it will work.                                   │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─ METHOD 2: Advanced ──────────────────────────────────────────────────┐
+│  Double-click: gobernador.bat                                            │
+│  This has more features and commands                                     │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─ METHOD 3: Command Line ──────────────────────────────────────────────┐
+│  Open Command Prompt (cmd.exe)                                          │
+│  Type: docker compose up -d --build                                     │
+│  Wait and open: http://localhost:5173                                   │
+└─────────────────────────────────────────────────────────────────────────┘
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    BEFORE FIRST RUN                                        ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+1. CHECK: Docker Desktop is installed
+   ✓ Download from: https://www.docker.com/products/docker-desktop
+   ✓ Install and restart your computer
+
+2. EDIT: The .env file
+   ✓ Open: .env (with Notepad)
+   ✓ Change passwords (at least 8 characters)
+   ✓ Save file
+
+3. RUN: Double-click run.bat
+   ✓ Wait 2-5 minutes first time
+   ✓ Subsequent runs are faster (30 seconds)
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    WHAT TO EXPECT                                          ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+First Run (~5 minutes):
+  ⏳ Downloading Docker images
+  ⏳ Building services
+  ⏳ Starting containers
+  ✅ Done!
+
+Then Open:
+  🌐 http://localhost:5173
+  👀 Your app is live!
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    COMMANDS                                                ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+gobernador.bat              - Start services
+gobernador stop             - Stop services
+gobernador restart          - Restart services
+gobernador logs             - View logs
+gobernador status           - Check status
+
+Or use Command Prompt:
+  docker compose up -d      - Start
+  docker compose down       - Stop
+  docker compose logs -f    - View logs
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    TROUBLESHOOTING                                         ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+❌ "Docker not found"
+   Solution: Install Docker Desktop
+   Download: https://www.docker.com/products/docker-desktop
+
+❌ "Port already in use"
+   Solution: Stop other applications using port 5173
+   Or restart your computer
+
+❌ Batch file won't run
+   Solution: Right-click run.bat > Run as Administrator
+   Or open Command Prompt and run: docker compose up -d --build
+
+❌ Takes too long
+   First run downloads ~500MB images (normal)
+   Next runs are much faster (30 seconds)
+
+❌ Services won't start
+   Solution: 
+   1. Open Command Prompt
+   2. Go to project folder: cd C:\path\to\project
+   3. Run: docker compose logs
+   4. Look for error messages
+
+❌ Can't reach http://localhost:5173
+   Solution:
+   1. Wait 60 seconds (services starting)
+   2. Run: docker compose ps
+   3. Check all containers show "Up"
+   4. Try: http://localhost:8080/health (backend test)
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    QUICK REFERENCE                                         ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+Frontend:    http://localhost:5173
+Backend:     http://localhost:8080
+Health:      http://localhost:8080/health
+Database:    localhost:5432
+
+.env File:
+  - POSTGRES_PASSWORD = Database password
+  - ADMIN_PASSWORD = App login password
+  - JWT_SECRET = Security key
+  - Change all of them!
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    COMMANDS IN COMMAND PROMPT                             ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+cd C:\path\to\gobernador       - Go to project
+docker compose up -d --build   - Start (first time)
+docker compose up -d           - Start (after first time)
+docker compose down            - Stop
+docker compose logs -f         - View logs
+docker compose ps              - Check status
+docker compose restart         - Restart all
+docker compose pull            - Update images
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    SUCCESS CHECKLIST                                       ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+After clicking run.bat:
+  ✓ Window opens
+  ✓ Docker commands run
+  ✓ "Services are starting" message appears
+  ✓ Wait 2-5 minutes
+  ✓ Open browser: http://localhost:5173
+  ✓ App loads!
+
+If anything fails:
+  1. Check .env file has passwords
+  2. Check Docker Desktop is running
+  3. Try again: double-click run.bat
+  4. Or open Command Prompt: docker compose up -d --build
+
+═══════════════════════════════════════════════════════════════════════════════
+
+STILL NOT WORKING?
+
+Open Command Prompt (Windows key + R, type: cmd, press Enter)
+
+Then run:
+  docker --version
+  
+If it says "Docker not found":
+  → Install Docker from https://www.docker.com/products/docker-desktop
+
+If Docker is installed:
+  cd C:\path\to\your\project
+  docker compose up
+  
+This will show you what's happening.
+
+═══════════════════════════════════════════════════════════════════════════════

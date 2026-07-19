@@ -1,0 +1,238 @@
+version: '3.9'
+
+services:
+  # ──────────────────────────────────────────────────────────────────────
+  # CORE SERVICES (from original docker-compose.yml)
+  # ──────────────────────────────────────────────────────────────────────
+  
+  db:
+    image: postgres:15-alpine
+    container_name: gobernador-db
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gobernador-network
+    restart: unless-stopped
+
+  # ──────────────────────────────────────────────────────────────────────
+  # LLM & AI SERVICES
+  # ──────────────────────────────────────────────────────────────────────
+
+  # Local Ollama - for running open-source models locally
+  # Download models: docker exec ollama ollama pull llama2 (or mistral, neural-chat, etc)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: gobernador-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      OLLAMA_HOST: "0.0.0.0:11434"
+    networks:
+      - gobernador-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    profiles:
+      - full
+      - llm
+
+  # Qdrant - Vector database for embeddings and semantic search
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: gobernador-qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT_API_KEY: ${QDRANT_API_KEY:-qdrant-key-2024}
+    networks:
+      - gobernador-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    profiles:
+      - full
+      - llm
+
+  # MCP (Model Context Protocol) Server - connects to external LLMs
+  mcp-server:
+    image: node:20-alpine
+    container_name: gobernador-mcp-server
+    working_dir: /app
+    volumes:
+      - ./mcp-server:/app
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      MCP_PORT: 3001
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      COHERE_API_KEY: ${COHERE_API_KEY}
+      OLLAMA_BASE_URL: http://ollama:11434
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY}
+    command: >
+      sh -c "npm install && npm start"
+    networks:
+      - gobernador-network
+    depends_on:
+      - db
+      - ollama
+      - qdrant
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    profiles:
+      - full
+      - llm
+
+  # Docker Agent - AI-powered container orchestration and code generation
+  docker-agent:
+    image: docker/docker-agent:latest
+    container_name: gobernador-docker-agent
+    ports:
+      - "8888:8888"
+    environment:
+      AGENT_MODE: ${AGENT_MODE:-local}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      DOCKER_HOST: unix:///var/run/docker.sock
+      MCP_SERVER_URL: http://mcp-server:3001
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - agent_cache:/root/.cache
+    networks:
+      - gobernador-network
+    depends_on:
+      - db
+      - mcp-server
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    profiles:
+      - full
+      - agents
+
+  # ──────────────────────────────────────────────────────────────────────
+  # BACKEND & FRONTEND (Updated to support MCP/Agents)
+  # ──────────────────────────────────────────────────────────────────────
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gobernador-backend
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      PORT: ${PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      WEBHOOK_API_KEY: ${WEBHOOK_API_KEY}
+      FRONTEND_URL: ${FRONTEND_URL}
+      LOG_LEVEL: ${LOG_LEVEL}
+      # MCP/Agent Integration
+      MCP_SERVER_URL: http://mcp-server:3001
+      DOCKER_AGENT_URL: http://docker-agent:8888
+      OLLAMA_URL: http://ollama:11434
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY}
+      # LLM API Keys
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      COHERE_API_KEY: ${COHERE_API_KEY}
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      db:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      mcp-server:
+        condition: service_healthy
+    networks:
+      - gobernador-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gobernador-frontend
+    ports:
+      - "5173:8080"
+    environment:
+      VITE_API_URL: http://localhost:8080
+      VITE_MCP_URL: http://localhost:3001
+      VITE_AGENT_URL: http://localhost:8888
+      VITE_OLLAMA_URL: http://localhost:11434
+    depends_on:
+      - backend
+    networks:
+      - gobernador-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+# ──────────────────────────────────────────────────────────────────────
+# PERSISTENT STORAGE
+# ──────────────────────────────────────────────────────────────────────
+
+volumes:
+  pgdata:
+    driver: local
+  ollama_data:
+    driver: local
+  qdrant_data:
+    driver: local
+  agent_cache:
+    driver: local
+
+# ──────────────────────────────────────────────────────────────────────
+# NETWORKING
+# ──────────────────────────────────────────────────────────────────────
+
+networks:
+  gobernador-network:
+    driver: bridge

@@ -1,0 +1,144 @@
+# 🪟 WINDOWS - How to Get Started
+
+## 📦 What You Have
+
+Four batch files for different purposes:
+
+| File | Purpose | When to Use |
+|------|---------|-----------|
+| **run.bat** | Simple launcher | First time / easiest option |
+| **gobernador.bat** | Full featured | After setup / advanced users |
+| **setup.bat** | Interactive wizard | First time setup |
+| **diagnose.bat** | Troubleshooting | If something doesn't work |
+
+---
+
+## 🚀 QUICKEST START (30 Seconds)
+
+### For Complete Beginners:
+
+1. **Double-click:** `run.bat`
+2. **Wait:** 2-5 minutes (first time)
+3. **Open:** http://localhost:5173
+
+That's it!
+
+---
+
+## 🛠️ SETUP WIZARD (5 Minutes)
+
+For guided setup with checks:
+
+1. **Double-click:** `setup.bat`
+2. **Follow prompts**
+3. **Edit passwords** when asked
+4. **Wait** for startup
+5. **Open:** http://localhost:5173
+
+---
+
+## 🔍 NOT WORKING? Use Diagnostics
+
+1. **Double-click:** `diagnose.bat`
+2. **Read output** for errors
+3. **Follow recommendations**
+4. **Try again:** `run.bat`
+
+---
+
+## 🎯 AVAILABLE COMMANDS
+
+### From run.bat window:
+(No commands - just starts everything)
+
+### From gobernador.bat window:
+```cmd
+gobernador stop              Stop all services
+gobernador restart           Restart services
+gobernador logs              View live logs
+gobernador status            Check container status
+```
+
+Or open Command Prompt and run:
+```cmd
+docker compose up            Start services
+docker compose down          Stop services
+docker compose logs -f       View logs
+docker compose ps            Check status
+```
+
+---
+
+## 📋 BEFORE FIRST RUN
+
+### 1. Install Docker
+- Download: https://www.docker.com/products/docker-desktop
+- Install
+- Restart computer
+
+### 2. Edit .env File
+- Open: `.env` with Notepad
+- Change all passwords (12+ characters)
+- Save file
+
+### 3. Run Batch File
+- Double-click: `run.bat` or `setup.bat`
+- Wait 2-5 minutes
+- Open: http://localhost:5173
+
+---
+
+## 🌐 SERVICE URLS
+
+Once running:
+- **Frontend:** http://localhost:5173
+- **Backend:** http://localhost:8080
+- **Health:** http://localhost:8080/health
+
+---
+
+## ⚡ TROUBLESHOOTING
+
+### "Docker not found"
+→ Install Docker Desktop: https://www.docker.com/products/docker-desktop
+
+### Batch file closes immediately
+→ Right-click → "Run as Administrator"
+
+### "Port already in use"
+→ Close other apps or restart computer
+
+### Services won't start
+→ Run: `diagnose.bat`
+
+### More details
+→ Read: `WINDOWS_BATCH_TROUBLESHOOTING.md`
+
+---
+
+## 📞 NEED HELP?
+
+1. **First:** Double-click `diagnose.bat`
+2. **Then:** Read the output for errors
+3. **Then:** Check `WINDOWS_BATCH_TROUBLESHOOTING.md`
+4. **Last:** Try manual command:
+   ```cmd
+   docker compose up
+   ```
+
+---
+
+## ✅ SUCCESS SIGNS
+
+After running batch file:
+- ✓ Black command window appears
+- ✓ Docker commands run
+- ✓ "Services are starting" message
+- ✓ Wait 2-5 minutes
+- ✓ Open http://localhost:5173
+- ✓ Web page loads
+- ✓ Done! ✅
+
+---
+
+**You're ready! Double-click `run.bat` and wait. It will just work.**
